@@ -3,8 +3,7 @@
 import sys
 import time
 from queue import PriorityQueue
-from threading import Thread
-from threading import active_count as threads_count
+from threading import Thread, active_count as threads_count
 
 import pygame
 
@@ -18,7 +17,7 @@ def heuristic(cube, objective):
 
     objt_x, objt_y = objective.get_pos()
     cub_x, cub_y = cube.get_pos()
-    return (abs((objt_x - cub_x)) + abs((objt_y - cub_y))) // 40
+    return (abs((objt_x - cub_x)) + abs((objt_y - cub_y))) // cubes.SIDE_LENGTH
 
 
 def reconstruct_path(came_from, current):
@@ -48,7 +47,7 @@ def astar(cube, paths):  # Thread
     # Defining the start pathcube f_cost and putting in the queue
     start = paths.find_path(cube)
     g_score[start] = 0
-    start.f = f_score[start] = heuristic(start, paths.get_objective())
+    start.f_cost = f_score[start] = heuristic(start, paths.get_objective())
     open_queue.put(start)
 
     # The priority queue has no way to analyze if it has an element inside.
@@ -80,7 +79,7 @@ def astar(cube, paths):  # Thread
                 g_score[neighbor] = tentative_gscore
                 f_score[neighbor] = g_score[neighbor] + \
                     heuristic(neighbor, paths.get_objective())
-                neighbor.f = f_score[neighbor]
+                neighbor.f_cost = f_score[neighbor]
 
                 if neighbor not in open_set:
                     open_queue.put(neighbor)
@@ -103,18 +102,18 @@ def get_keydown_events(event, paths, cube):
         paths.reset_all()
         cube.reset_pos()
     elif event.key == pygame.K_s:
-        if threads_count() == 1 and paths.have_objective():
+        if threads_count() == 1 and paths.get_objective() is not None:
             Thread(target=astar, args=(cube, paths), daemon=True).start()
 
     # Catching the directions clicks.
     elif event.key == pygame.K_UP:
-        cube.rect.y -= 40
+        cube.rect.y -= cubes.SIDE_LENGTH
     elif event.key == pygame.K_DOWN:
-        cube.rect.y += 40
+        cube.rect.y += cubes.SIDE_LENGTH
     elif event.key == pygame.K_RIGHT:
-        cube.rect.x += 40
+        cube.rect.x += cubes.SIDE_LENGTH
     elif event.key == pygame.K_LEFT:
-        cube.rect.x -= 40
+        cube.rect.x -= cubes.SIDE_LENGTH
 
 
 def main():
