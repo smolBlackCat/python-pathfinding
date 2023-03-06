@@ -2,8 +2,9 @@
 
 from pygame import draw, rect, mouse
 
+SIDE_LENGTH = 40  # In pixels
 
-# Super Class
+
 class Cube:
     """A class that will represent the cubes used for simulating,
     walls, objectives and the main character"""
@@ -13,7 +14,7 @@ class Cube:
 
         self.screen = screen
         self.screen_rect = screen.get_rect()
-        self.rect = rect.Rect(0, 0, 40, 40)
+        self.rect = rect.Rect(0, 0, SIDE_LENGTH, SIDE_LENGTH)
         self.rect_color = ()
         self.pos = self.rect.x, self.rect.y
 
@@ -42,6 +43,9 @@ class CharacterCube(Cube):
 
         self.rect.x = path_obj.rect.x
         self.rect.y = path_obj.rect.y
+    
+    def draw(self):
+        draw.rect(self.screen, self.rect_color, self.rect, border_radius=3)
 
     def reset_pos(self):
         """Resets the character cube."""
@@ -94,7 +98,7 @@ class PathCube(Cube):
     def draw(self):
         """Draw the Path Grid on the screen."""
 
-        draw.rect(self.screen, self.rect_color, self.rect)
+        draw.rect(self.screen, self.rect_color, self.rect, 4)
 
     def __repr__(self):
         return f"Path({PathCube.ID}) at {self.get_pos()}"
@@ -122,10 +126,10 @@ class PathCubeList(list):
         neighbors = []
         pathx, pathy = path_.get_pos()
         for path in self:
-            is_neighbor = any([path.rect.collidepoint(pathx, pathy-40),
-                               path.rect.collidepoint(pathx, pathy+40),
-                               path.rect.collidepoint(pathx-40, pathy),
-                               path.rect.collidepoint(pathx+40, pathy)])
+            is_neighbor = any([path.rect.collidepoint(pathx, pathy-SIDE_LENGTH),
+                               path.rect.collidepoint(pathx, pathy+SIDE_LENGTH),
+                               path.rect.collidepoint(pathx-SIDE_LENGTH, pathy),
+                               path.rect.collidepoint(pathx+SIDE_LENGTH, pathy)])
             if is_neighbor:
                 neighbors.append(path)
         return neighbors
@@ -133,12 +137,12 @@ class PathCubeList(list):
     def gen_paths(self):
         """Creates the path objects depending on the screen size."""
 
-        n_columns = self.scr.get_width() // 40
-        n_rows = self.scr.get_height() // 40
+        n_columns = self.scr.get_width() // SIDE_LENGTH
+        n_rows = self.scr.get_height() // SIDE_LENGTH
 
         for x_pos in range(n_rows):
             for y_pos in range(n_columns):
-                self.append(PathCube(self.scr, (y_pos*40, x_pos*40)))
+                self.append(PathCube(self.scr, (y_pos*SIDE_LENGTH, x_pos*SIDE_LENGTH)))
 
     def update_paths(self):
         """Updates the CubePath objects on the screen. 
@@ -153,7 +157,7 @@ class PathCubeList(list):
                 path.block()
             elif mouse.get_pressed()[2] and \
                     path.rect.collidepoint(mouse.get_pos()) and \
-                    not self.have_objective():
+                    self.get_objective() is None:
                 path.set_objective()
 
     def get_objective(self):
@@ -167,11 +171,6 @@ class PathCubeList(list):
             if path.is_objective:
                 return path
         return None
-
-    def have_objective(self):
-        """It returns True if the objective is in the List"""
-
-        return self.get_objective() is not None
 
     def reset_all(self):
         """Resets all the program to the factory."""
