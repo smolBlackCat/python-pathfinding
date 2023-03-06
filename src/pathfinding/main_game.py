@@ -13,7 +13,17 @@ pygame.init()
 
 
 def heuristic(cube, objective):
-    """A heuristic function, using Manhattan method."""
+    """Produces the cost based on the cube position and the objective position
+    using the manhattan method.
+    
+    Args:
+        cube: Character cube object that will go through the most optimal path.
+        
+        objective: PathCube object which is_objective attribute is true.
+    
+    Returns:
+        The cost based on the cube position and the objective position.
+    """
 
     objt_x, objt_y = objective.get_pos()
     cub_x, cub_y = cube.get_pos()
@@ -21,7 +31,19 @@ def heuristic(cube, objective):
 
 
 def reconstruct_path(came_from, current):
-    """Reconstruct all the good path."""
+    """Produces a list containing the most optimal nodes.
+    
+    Args:
+        came_from: dict object used to keep track of the node immediately
+                   preceding each node on the cheapest path from the start node
+                   to that node.
+        
+        current: Starting node. the value will change to the next node linked
+                 to this node.
+    
+    Returns:
+        list object containing the most optimal nodes.
+    """
 
     total_path = [current]
     while current in came_from.keys():
@@ -32,8 +54,17 @@ def reconstruct_path(came_from, current):
 
 
 def astar(cube, paths):  # Thread
-    """At this part of the program, the character will start walking through
-    the paths up to the objective."""
+    """A* Algorithm. Produces the most optimal path.
+    
+    Args:
+        cube: Character cube object that will go through the most optimal path.
+        
+        paths: PathCubeList object.
+    
+    Returns:
+        True when the algorithm was able to find a optimal path. Otherwise
+        False.
+    """
 
     open_queue = PriorityQueue()
 
@@ -96,7 +127,16 @@ def astar(cube, paths):  # Thread
 
 
 def get_keydown_events(event, paths, cube):
-    """Catch the buttons clicked by user."""
+    """Computes keydown events.
+    
+    Args:
+        event: pygame.event.Event object from which the value in the \"key\"
+               attribute is gotten from
+        
+        paths: PathCubeList object.
+        
+        cube: CharacterCube object.
+    """
 
     if event.key == pygame.K_r:
         paths.reset_all()
@@ -105,7 +145,7 @@ def get_keydown_events(event, paths, cube):
         if threads_count() == 1 and paths.get_objective() is not None:
             Thread(target=astar, args=(cube, paths), daemon=True).start()
 
-    # Catching the directions clicks.
+    # Computing the directions clicks.
     elif event.key == pygame.K_UP:
         cube.rect.y -= cubes.SIDE_LENGTH
     elif event.key == pygame.K_DOWN:
@@ -118,6 +158,7 @@ def get_keydown_events(event, paths, cube):
 
 def main():
     """Main Program."""
+
     screen = pygame.display.set_mode((1200, 600))
     clock = pygame.time.Clock()
     pygame.display.set_caption("Pathfinding app")
