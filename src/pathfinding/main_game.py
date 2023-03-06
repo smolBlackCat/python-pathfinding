@@ -1,10 +1,14 @@
 """A main that implements all the visual stuff and processing"""
 
+import sys
 import time
 from queue import PriorityQueue
-from threading import Thread, active_count as threads_count
+from threading import Thread
+from threading import active_count as threads_count
+
 import pygame
-import cubes
+
+from . import cubes
 
 pygame.init()
 
@@ -36,7 +40,7 @@ def astar(cube, paths):  # Thread
 
     # cameFrom[n] is the node immediately preceding it on the cheapest path
     # from start to n currently known.
-    came_from = dict()
+    came_from = {}
 
     g_score = {path: float("inf") for path in paths}
     f_score = {path: float("inf") for path in paths}
@@ -51,7 +55,7 @@ def astar(cube, paths):  # Thread
     # So a set is much better .
     open_set = {start}
 
-    g = 1  # g == n + 1
+    score = 1  # g == n + 1
     while not open_queue.empty():
         current = open_queue.get()
         if current.is_objective:
@@ -67,7 +71,7 @@ def astar(cube, paths):  # Thread
         # algorithm not analyze repeated cubes.
         open_set.remove(current)
         for neighbor in paths.get_neighbors(current):
-            tentative_gscore = g_score[current] + g
+            tentative_gscore = g_score[current] + score
 
             if tentative_gscore < g_score[neighbor] and not \
                     neighbor.is_blocked:
@@ -85,7 +89,7 @@ def astar(cube, paths):  # Thread
                 # This is not a good idea, let's see others...
                 if not (neighbor.is_blocked or neighbor.is_objective):
                     neighbor.rect_color = (255, 0, 255)
-        g += 1
+        score += 1
 
     # print this if the path just dont exist. :(
     print("The path doesn't exist")
@@ -99,9 +103,6 @@ def get_keydown_events(event, paths, cube):
         paths.reset_all()
         cube.reset_pos()
     elif event.key == pygame.K_s:
-        # TODO: The character starts running on the better way.
-        # Implementing a daemon thread, so when the user click the exit
-        # button, the process is immediatelly killed.
         if threads_count() == 1 and paths.have_objective():
             Thread(target=astar, args=(cube, paths), daemon=True).start()
 
@@ -117,6 +118,7 @@ def get_keydown_events(event, paths, cube):
 
 
 def main():
+    """Main Program."""
     screen = pygame.display.set_mode((1200, 600))
     clock = pygame.time.Clock()
     pygame.display.set_caption("Pathfinding app")
@@ -128,11 +130,10 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                quit(0)
+                sys.exit(0)
             elif event.type == pygame.KEYDOWN:
                 get_keydown_events(event, paths, cube)
 
-        # TODO: Draw and update the screen
         screen.fill((255, 255, 255))
         paths.update_paths()
         cube.draw()
