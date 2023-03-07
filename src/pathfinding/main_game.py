@@ -139,7 +139,7 @@ def get_keydown_events(event, paths, cube):
     """
 
     if event.key == pygame.K_r:
-        paths.reset_all()
+        paths.unblock_all()
         cube.reset_pos()
     elif event.key == pygame.K_s:
         if threads_count() == 1 and paths.get_objective() is not None:
@@ -175,7 +175,7 @@ def main():
                 get_keydown_events(event, paths, cube)
 
         screen.fill((255, 255, 255))
-        paths.update_paths()
+        paths.draw_and_update()
         cube.draw()
 
         clock.tick(60)

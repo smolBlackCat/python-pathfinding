@@ -6,11 +6,15 @@ SIDE_LENGTH = 40  # In pixels
 
 
 class Cube:
-    """A class that will represent the cubes used for simulating,
-    walls, objectives and the main character"""
+    """Base class for implementing Cube classes."""
 
     def __init__(self, screen):
-        """Initialize all the instance attributes for this object."""
+        """Initialise the object.
+
+        Args:
+            screen: pygame.surface.Surface object from where the cube will be
+                    drawn on.
+        """
 
         self.screen = screen
         self.screen_rect = screen.get_rect()
@@ -19,49 +23,58 @@ class Cube:
         self.pos = self.rect.x, self.rect.y
 
     def draw(self):
-        """Draws the cube"""
+        """Draws the cube."""
 
         draw.rect(self.screen, self.rect_color, self.rect)
 
     def get_pos(self):
-        """Returns a tuple corresponding the path coordinates."""
+        """Gets a tuple corresponding to the cube x and y coordinates."""
 
         return self.rect.x, self.rect.y
 
 
 class CharacterCube(Cube):
-    """A class that represents the cube character.
-
-    His objective is going to the objective with a faster and better way."""
+    """CharacterCube class."""
 
     def __init__(self, screen):
         super().__init__(screen)
         self.rect_color = (0, 0, 255)
 
     def move(self, path_obj):
-        """Moves the Character to a specified path."""
+        """Moves the Character to a specified path.
+        
+        Args:
+            path_obj: PathCube object from which this CharacterCube object will
+                      go to.
+        """
 
         self.rect.x = path_obj.rect.x
         self.rect.y = path_obj.rect.y
-    
+
     def draw(self):
         draw.rect(self.screen, self.rect_color, self.rect, border_radius=3)
 
     def reset_pos(self):
-        """Resets the character cube."""
+        """Resets the position to (0,0)."""
 
         self.rect.x = self.rect.y = 0
 
 
 class PathCube(Cube):
-    """A class that represents the wall.
-
-    In the initial, the user will put the cubes for difficulting the 
-    passage of the charater cube."""
+    """Cube subclass working as a path block in the game's surface."""
 
     ID = 0
 
     def __init__(self, screen, pos):
+        """Initialise the object.
+
+        Args:
+            screen: pygame.surface.Surface object from where the cube will be
+                    drawn on.
+            
+            pos: tuple containing the x and y coordinates.
+        """
+
         super().__init__(screen)
         self.rect_color = (0, 255, 0)
         self.is_blocked = False
@@ -72,8 +85,8 @@ class PathCube(Cube):
         PathCube.ID += 1
 
     def block(self):
-        """Change the status of the path to blocked and change the 
-        color (red).
+        """Change the status of the path to blocked and change the color
+        (red).
         """
 
         self.rect_color = (255, 0, 0)
@@ -81,36 +94,37 @@ class PathCube(Cube):
         self.is_objective = False
 
     def unblock(self):
-        """Change the status of the path to unblocked and change the 
-        color (green)"""
+        """Change the status of the path to unblocked and change the color
+        (green).
+        """
 
         self.rect_color = (0, 255, 0)
         self.is_blocked = False
         self.is_objective = False
 
     def set_objective(self):
-        """Sets where the character must appear"""
+        """Change the status of the path to be the objective from which the
+        CharacterCube object will go to in the most optimal way.
+        """
 
         self.rect_color = (255, 225, 45)
         self.is_blocked = False
         self.is_objective = True
 
     def draw(self):
-        """Draw the Path Grid on the screen."""
-
         draw.rect(self.screen, self.rect_color, self.rect, 4)
 
     def __repr__(self):
         return f"Path({PathCube.ID}) at {self.get_pos()}"
 
     def __lt__(self, other):
-        """The comparing is based on the f cost"""
+        """The comparison is based on the f cost."""
 
         return self.f_cost < other.f_cost
 
 
 class PathCubeList(list):
-    """A class that inherit list class, to organize all paths objects"""
+    """Subclass of list to organise all paths objects and interact with them."""
 
     def __init__(self, screen, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -118,37 +132,41 @@ class PathCubeList(list):
         self.gen_paths()
 
     def get_neighbors(self, path_: PathCube):
-        """Get neighbors from a path.
+        """Get the neighbors of the given path.
 
-        Returns a empty list if the path specified doesnt exists.
+        Args:
+            path_: PathCube object from which the neighbors will be gotten from.
+        
+        Returns:
+            A list containing all the path_ neighbors.
         """
 
         neighbors = []
         pathx, pathy = path_.get_pos()
         for path in self:
             is_neighbor = any([path.rect.collidepoint(pathx, pathy-SIDE_LENGTH),
-                               path.rect.collidepoint(pathx, pathy+SIDE_LENGTH),
-                               path.rect.collidepoint(pathx-SIDE_LENGTH, pathy),
+                               path.rect.collidepoint(
+                                   pathx, pathy+SIDE_LENGTH),
+                               path.rect.collidepoint(
+                                   pathx-SIDE_LENGTH, pathy),
                                path.rect.collidepoint(pathx+SIDE_LENGTH, pathy)])
             if is_neighbor:
                 neighbors.append(path)
         return neighbors
 
     def gen_paths(self):
-        """Creates the path objects depending on the screen size."""
+        """Creates the path objects according to the screen size."""
 
         n_columns = self.scr.get_width() // SIDE_LENGTH
         n_rows = self.scr.get_height() // SIDE_LENGTH
 
         for x_pos in range(n_rows):
             for y_pos in range(n_columns):
-                self.append(PathCube(self.scr, (y_pos*SIDE_LENGTH, x_pos*SIDE_LENGTH)))
+                self.append(
+                    PathCube(self.scr, (y_pos*SIDE_LENGTH, x_pos*SIDE_LENGTH)))
 
-    def update_paths(self):
-        """Updates the CubePath objects on the screen. 
-
-        Tasks such as drawing and color update.
-        """
+    def draw_and_update(self):
+        """Draws and updates the CubePath objects in this list onto the screen."""
 
         for path in self:
             path.draw()
@@ -161,10 +179,11 @@ class PathCubeList(list):
                 path.set_objective()
 
     def get_objective(self):
-        """Returns the pathCube object that the attribute is_objective is 
-        True.
+        """Get a CubePath object which its is_objective attribute is set to
+        True. 
 
-        Returns None if the objective doesnt exists.
+        Returns:
+            CubePath object that's an objective.
         """
 
         for path in self:
@@ -172,16 +191,21 @@ class PathCubeList(list):
                 return path
         return None
 
-    def reset_all(self):
-        """Resets all the program to the factory."""
+    def unblock_all(self):
+        """Set all the PathCube(s) status to unblocked."""
 
         for path in self:
             path.unblock()
 
     def find_path(self, cube):
-        """Returns the path object from pos.
+        """Get the PathCube that's being covered by the given cube.
 
-        None is returned if the path was not found.
+        Args:
+            cube: Any cube object.
+        
+        Returns:
+            PathCube object that's being covered by the given cube. If that
+            isn't the case, None is returned.
         """
 
         for path in self:
