@@ -164,12 +164,17 @@ class PathCubeList(list):
             for y_pos in range(n_columns):
                 self.append(
                     PathCube(self.scr, (y_pos*SIDE_LENGTH, x_pos*SIDE_LENGTH)))
-
-    def draw_and_update(self):
-        """Draws and updates the CubePath objects in this list onto the screen."""
+    
+    def draw(self):
+        """Draws the grid onto screen."""
 
         for path in self:
             path.draw()
+
+    def update(self):
+        """Update their colours if they're pressed."""
+
+        for path in self:
             if mouse.get_pressed()[0] and \
                     path.rect.collidepoint(mouse.get_pos()):
                 path.block()
