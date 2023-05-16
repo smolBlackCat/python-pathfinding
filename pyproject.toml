@@ -20,5 +20,5 @@ classifiers = [
 dependencies= ["pygame"]
 
 [project.urls]
-"Homepage" = "https://github.com/smolBlackCat/python-game-engine"
-"Bug Tracker" = "https://github.com/smolBlackCat/python-game-engine/issues"
+"Homepage" = "https://github.com/smolBlackCat/python-pathfinding"
+"Bug Tracker" = "https://github.com/smolBlackCat/python-pathfinding/issues"
