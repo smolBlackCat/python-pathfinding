@@ -1,6 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0",
-            "basic-engine @ git+https://github.com/smolBlackCat/python-game-engine.git"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,7 +16,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies= ["pygame"]
+dependencies= ["pygame",
+               "basic_engine @ git+https://github.com/smolBlackCat/python-game-engine.git"]
 
 [project.urls]
 "Homepage" = "https://github.com/smolBlackCat/python-pathfinding"
