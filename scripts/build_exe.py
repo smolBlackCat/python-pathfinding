@@ -5,9 +5,10 @@ RUN IT IN THE PROJECT ROOT.
 """
 
 import PyInstaller.__main__
+import os
 
 PyInstaller.__main__.run(
     ["scripts/target.py",
      "-n", "moura-pathfinding",
-     "--add-data", "src/pathfinding/data/icon.png:data"]
+     "--add-data", os.path.join("src", "pathfinding", "data", "icon.png")+os.pathsep+"data"]
 )
