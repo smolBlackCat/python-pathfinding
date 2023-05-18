@@ -1,9 +1,9 @@
-"""A main that implements all the visual stuff and processing"""
+"""Application Entry"""
 
 import pygame
 from basic_engine import game
 
-from . import scenes
+from . import icon_path, scenes
 
 pygame.init()
 
@@ -11,7 +11,7 @@ pygame.init()
 def main():
     """Main Program."""
 
-    app = game.Game(1200, 600, "Pathfinding app")
+    app = game.Game(1200, 600, "Pathfinding app", pygame.image.load(icon_path))
 
     app.add_scene("splash_screen", scenes.SplashScreenScene(app.screen))
     app.add_scene("main", scenes.ApplicationScene(app.screen))
