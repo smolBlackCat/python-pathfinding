@@ -9,6 +9,8 @@ import os
 
 PyInstaller.__main__.run(
     ["scripts/target.py",
+     "-w",
+     "--icon", os.path.join("data", "moura-pathfinding.png"),
      "-n", "moura-pathfinding",
      "--add-data", os.path.join("src", "pathfinding", "data", "icon.png")+os.pathsep+"data"]
 )
