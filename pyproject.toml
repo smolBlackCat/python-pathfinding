@@ -23,6 +23,9 @@ dependencies= ["pygame",
 "Homepage" = "https://github.com/smolBlackCat/python-pathfinding"
 "Bug Tracker" = "https://github.com/smolBlackCat/python-pathfinding/issues"
 
+[project.scripts]
+moura-pathfinding = "pathfinding.main:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
