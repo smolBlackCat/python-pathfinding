@@ -15,4 +15,4 @@ import os
 
 from . import data_base_dir
 
-message_map = json.load(open(os.path.join(data_base_dir, f"{locale.getlocale()[0]}.json")))
+message_map = json.load(open(os.path.join(data_base_dir, f"{locale.getdefaultlocale()[0]}.json")))
