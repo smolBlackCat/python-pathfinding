@@ -30,4 +30,4 @@ moura-pathfinding = "pathfinding.main:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"pathfinding.data" = ["*.png"]
+"pathfinding.data" = ["*.png", "*.json"]
