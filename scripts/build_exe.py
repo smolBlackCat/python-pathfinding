@@ -12,5 +12,7 @@ PyInstaller.__main__.run(
      "-w",
      "--icon", os.path.join("data", "moura-pathfinding.png"),
      "-n", "moura-pathfinding",
-     "--add-data", os.path.join("src", "pathfinding", "data", "icon.png")+os.pathsep+"data"]
+     "--add-data", os.path.join("src", "pathfinding", "data", "icon.png")+os.pathsep+"data",
+     "--add-data", os.path.join("src", "pathfinding", "data", "en_GB.json")+os.pathsep+"data",
+     "--add-data", os.path.join("src", "pathfinding", "data", "pt_BR.json")+os.pathsep+"data"]
 )

@@ -6,7 +6,7 @@ from threading import Thread, active_count
 from basic_engine import scene, transition, interface
 from pygame import constants, image, time, transform
 
-from . import algorithms, cubes, icon_path
+from . import algorithms, cubes, languages, icon_path
 
 
 class SplashScreenScene(scene.Scene):
@@ -20,7 +20,7 @@ class SplashScreenScene(scene.Scene):
         self.bg_colour = (255, 255, 255)
         self.app_icon = transform.scale(image.load(icon_path), (64, 64))
         self.app_label = interface.Label(self.screen,
-                                         "App made by smolBlackCat",
+                                         languages.message_map["main_title"],
                                          colour=(0, 0, 0), size=36, chars_per_line=20)
         self.app_icon_rect = self.app_icon.get_rect()
         self.app_icon_rect.center = self.screen_rect.center
