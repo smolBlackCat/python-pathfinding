@@ -65,6 +65,10 @@ class PathCube(Cube):
 
     ID = 0
 
+    BLOCKED_COLOUR = (10, 195, 138)
+    OPEN_COLOUR = (43, 218, 127)
+    OBJECTIVE_COLOUR = (255, 225, 45)
+
     def __init__(self, screen, pos):
         """Initialise the object.
 
@@ -76,7 +80,7 @@ class PathCube(Cube):
         """
 
         super().__init__(screen)
-        self.rect_color = (0, 255, 0)
+        self.rect_color = self.OPEN_COLOUR
         self.is_blocked = False
         self.is_objective = False
         self.f_cost = 0
@@ -89,7 +93,7 @@ class PathCube(Cube):
         (red).
         """
 
-        self.rect_color = (255, 0, 0)
+        self.rect_color = self.BLOCKED_COLOUR
         self.is_blocked = True
         self.is_objective = False
 
@@ -98,7 +102,7 @@ class PathCube(Cube):
         (green).
         """
 
-        self.rect_color = (0, 255, 0)
+        self.rect_color = self.OPEN_COLOUR
         self.is_blocked = False
         self.is_objective = False
 
@@ -107,12 +111,12 @@ class PathCube(Cube):
         CharacterCube object will go to in the most optimal way.
         """
 
-        self.rect_color = (255, 225, 45)
+        self.rect_color = self.OBJECTIVE_COLOUR
         self.is_blocked = False
         self.is_objective = True
 
     def draw(self):
-        draw.rect(self.screen, self.rect_color, self.rect, 4)
+        draw.rect(self.screen, self.rect_color, self.rect)
 
     def __repr__(self):
         return f"Path({PathCube.ID}) at {self.get_pos()}"
