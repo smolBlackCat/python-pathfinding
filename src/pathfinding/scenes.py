@@ -54,17 +54,24 @@ class ApplicationScene(scene.Scene):
         self.traversing = False
         self.cube = cubes.CharacterCube(screen)
         self.paths = cubes.PathCubeList(screen)
+
         self.algorithms_button_bar = interface.ButtonBar(
             self.screen, "Algorithms", "right",
-            ("A*", lambda: self.set_algorithm(algorithms.astar)),
-            ("Dijkistra Algorithm", lambda: print("Dijisktra")),
-            ("Depth-First Search", lambda: print("Depth-First")),
-            ("Breadth-First Search", lambda: print("Breadth-First")))
+            ("A*", lambda: self.set_algorithm(algorithms.astar, "A*")),
+            ("Dijkistra Algorithm", lambda: self.set_algorithm(algorithms.astar, "Dijkistra")),
+            ("Depth-First Search", lambda: self.set_algorithm(algorithms.astar, "Depth-First")),
+            ("Breadth-First Search", lambda: self.set_algorithm(algorithms.astar, "Breadth-First")),
+            bar_surface_colour=(41, 67, 92), bar_outline_colour=(21, 42, 56))
+
         self.timer = interface.Chronometer(screen, (255, 255, 255))
         self.timer.rect.y += 10
         self.timer.rect.centerx = self.screen_rect.centerx
+
         self.label = interface.Label(screen, "No algorithm was selected",
                                      bold=True, size=24, colour=(255, 255, 255))
+        self.label.rect.topright = self.screen_rect.topright
+        self.label.rect.x -= 10
+        self.label.rect.y += 10
 
         self.algorithm = None
 
@@ -74,6 +81,7 @@ class ApplicationScene(scene.Scene):
         self.cube.draw()
         self.algorithms_button_bar.draw()
         self.timer.draw()
+        self.label.draw()
 
     def update(self) -> None:
         if not self.algorithms_button_bar.active:
@@ -122,5 +130,10 @@ class ApplicationScene(scene.Scene):
         self.timer.stop()
         self.traversing = False
 
-    def set_algorithm(self, new):
+    def set_algorithm(self, new, name_new):
+        self.label.update_text(f"Selected Algorithm: {name_new}")
+        self.label.rect = self.label.image.get_rect()
+        self.label.rect.topright = self.screen_rect.topright
+        self.label.rect.x -= 10
+        self.label.rect.y += 10
         self.algorithm = new
