@@ -57,7 +57,7 @@ class ApplicationScene(scene.Scene):
         self.pathfinding_algorithms = []
 
     def draw(self) -> None:
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((30, 30, 30))
         self.paths.draw()
         self.cube.draw()
 
@@ -80,11 +80,11 @@ class ApplicationScene(scene.Scene):
                     ).start()
 
             # Computing the directions clicks.
-            elif event.key == constants.K_UP:
+            elif event.key == constants.K_UP and self.cube.rect.y > self.paths.HEIGHT_SPACING_FACTOR//2:
                 self.cube.rect.y -= cubes.SIDE_LENGTH
-            elif event.key == constants.K_DOWN:
+            elif event.key == constants.K_DOWN and self.cube.rect.y < self.paths.grid_height:
                 self.cube.rect.y += cubes.SIDE_LENGTH
-            elif event.key == constants.K_RIGHT:
+            elif event.key == constants.K_RIGHT and self.cube.rect.x <= self.paths.grid_width:
                 self.cube.rect.x += cubes.SIDE_LENGTH
-            elif event.key == constants.K_LEFT:
+            elif event.key == constants.K_LEFT and self.cube.rect.x > self.paths.WIDTH_SPACING_FACTOR//2:
                 self.cube.rect.x -= cubes.SIDE_LENGTH

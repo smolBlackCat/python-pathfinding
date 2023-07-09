@@ -1,6 +1,6 @@
 """Cubes module."""
 
-from pygame import draw, rect, mouse
+from pygame import draw, mouse, rect, surface
 
 SIDE_LENGTH = 40  # In pixels
 
@@ -39,6 +39,7 @@ class CharacterCube(Cube):
     def __init__(self, screen):
         super().__init__(screen)
         self.rect_color = (0, 0, 255)
+        self.reset_pos()
 
     def move(self, path_obj):
         """Moves the Character to a specified path.
@@ -55,9 +56,11 @@ class CharacterCube(Cube):
         draw.rect(self.screen, self.rect_color, self.rect, border_radius=3)
 
     def reset_pos(self):
-        """Resets the position to (0,0)."""
+        """Resets the cube's position to the topleft of the terrain
+        grid"""
 
-        self.rect.x = self.rect.y = 0
+        self.rect.x = PathCubeList.WIDTH_SPACING_FACTOR // 2
+        self.rect.y = PathCubeList.HEIGHT_SPACING_FACTOR // 2
 
 
 class PathCube(Cube):
@@ -65,7 +68,7 @@ class PathCube(Cube):
 
     ID = 0
 
-    BLOCKED_COLOUR = (10, 195, 138)
+    BLOCKED_COLOUR = (10, 140, 138)
     OPEN_COLOUR = (43, 218, 127)
     OBJECTIVE_COLOUR = (255, 225, 45)
 
@@ -117,6 +120,7 @@ class PathCube(Cube):
 
     def draw(self):
         draw.rect(self.screen, self.rect_color, self.rect)
+        draw.rect(self.screen, (0, 0, 0), self.rect, 2)
 
     def __repr__(self):
         return f"Path({PathCube.ID}) at {self.get_pos()}"
@@ -130,9 +134,14 @@ class PathCube(Cube):
 class PathCubeList(list):
     """Subclass of list to organise all paths objects and interact with them."""
 
+    WIDTH_SPACING_FACTOR = 160
+    HEIGHT_SPACING_FACTOR = 80
+
     def __init__(self, screen, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.scr = screen
+        self.screen = screen
+        self.rect = rect.Rect(0, 0, self.grid_width, self.grid_height)
+        self.rect.center = self.screen.get_rect().center
         self.gen_paths()
 
     def get_neighbors(self, path_: PathCube):
@@ -158,17 +167,31 @@ class PathCubeList(list):
                 neighbors.append(path)
         return neighbors
 
+    @property
+    def grid_width(self):
+        return self.screen.get_width() - self.WIDTH_SPACING_FACTOR
+
+    @property
+    def grid_height(self):
+        return self.screen.get_height() - self.HEIGHT_SPACING_FACTOR
+
     def gen_paths(self):
         """Creates the path objects according to the screen size."""
 
-        n_columns = self.scr.get_width() // SIDE_LENGTH
-        n_rows = self.scr.get_height() // SIDE_LENGTH
+        n_columns = self.grid_height // SIDE_LENGTH
+        n_rows = self.grid_width // SIDE_LENGTH
+
+        cur_column = self.HEIGHT_SPACING_FACTOR // 2
+        cur_row = self.WIDTH_SPACING_FACTOR // 2
 
         for x_pos in range(n_rows):
             for y_pos in range(n_columns):
                 self.append(
-                    PathCube(self.scr, (y_pos*SIDE_LENGTH, x_pos*SIDE_LENGTH)))
-    
+                    PathCube(self.screen, (cur_row, cur_column)))
+                cur_column += SIDE_LENGTH
+            cur_column = self.HEIGHT_SPACING_FACTOR // 2
+            cur_row += SIDE_LENGTH
+
     def draw(self):
         """Draws the grid onto screen."""
 
