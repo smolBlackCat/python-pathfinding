@@ -2,7 +2,7 @@
 
 from pygame import draw, mouse, rect, surface
 
-SIDE_LENGTH = 40  # In pixels
+SIDE_LENGTH = 20  # In pixels
 
 
 class Cube:

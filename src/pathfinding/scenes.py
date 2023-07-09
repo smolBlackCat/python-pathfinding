@@ -51,18 +51,35 @@ class ApplicationScene(scene.Scene):
     def __init__(self, screen):
         super().__init__(screen)
 
+        self.traversing = False
         self.cube = cubes.CharacterCube(screen)
         self.paths = cubes.PathCubeList(screen)
+        self.algorithms_button_bar = interface.ButtonBar(
+            self.screen, "Algorithms", "right",
+            ("A*", lambda: self.set_algorithm(algorithms.astar)),
+            ("Dijkistra Algorithm", lambda: print("Dijisktra")),
+            ("Depth-First Search", lambda: print("Depth-First")),
+            ("Breadth-First Search", lambda: print("Breadth-First")))
+        self.timer = interface.Chronometer(screen, (255, 255, 255))
+        self.timer.rect.y += 10
+        self.timer.rect.centerx = self.screen_rect.centerx
+        self.label = interface.Label(screen, "No algorithm was selected",
+                                     bold=True, size=24, colour=(255, 255, 255))
 
-        self.pathfinding_algorithms = []
+        self.algorithm = None
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 30))
         self.paths.draw()
         self.cube.draw()
+        self.algorithms_button_bar.draw()
+        self.timer.draw()
 
     def update(self) -> None:
-        self.paths.update()
+        if not self.algorithms_button_bar.active:
+            self.paths.update()
+        self.algorithms_button_bar.update()
+        self.timer.update()
 
     def update_on_event(self, event) -> None:
         if event.type == constants.QUIT:
@@ -71,11 +88,11 @@ class ApplicationScene(scene.Scene):
             if event.key == constants.K_r:
                 self.paths.unblock_all()
                 self.cube.reset_pos()
-            elif event.key == constants.K_s:
+                self.timer.reset()
+            elif event.key == constants.K_s and self.algorithm is not None:
                 if active_count() == 1 and self.paths.get_objective() is not None:
                     Thread(
-                        target=algorithms.astar,
-                        args=(self.cube, self.paths),
+                        target=lambda: self.solve_maze(self.algorithm),
                         daemon=True,
                     ).start()
 
@@ -88,3 +105,22 @@ class ApplicationScene(scene.Scene):
                 self.cube.rect.x += cubes.SIDE_LENGTH
             elif event.key == constants.K_LEFT and self.cube.rect.x > self.paths.WIDTH_SPACING_FACTOR//2:
                 self.cube.rect.x -= cubes.SIDE_LENGTH
+        self.algorithms_button_bar.update_on_event(event)
+
+    def solve_maze(self, fn):
+        """Solve the user generated maze given the solver function.
+        
+        Args:
+        
+            fn: Function to use to solve the maze.
+                Signature: fn(CharacterCube, PathCubeList)
+        """
+
+        self.traversing = True
+        self.timer.start()
+        fn(self.cube, self.paths)
+        self.timer.stop()
+        self.traversing = False
+
+    def set_algorithm(self, new):
+        self.algorithm = new
