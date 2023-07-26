@@ -118,3 +118,95 @@ def astar(cube, paths):  # Thread
     # print this if the path just dont exist. :(
     print("The path doesn't exist")
     return False
+
+
+def dfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
+    """Finds a path from the starting node to the end node.
+    
+    The start node is defined by the current cube's position and the
+    end node is defined by the pathcube which its is_objective attribute is true.
+    
+    The algorithm finds a path using the depth-first search algorithm.
+    
+    Returns:
+        True if the a path was found, othewise False.
+    """
+
+    visited = set()
+
+    start = paths.find_path(cube)
+    path = [start]
+    # stack item: pathcube path
+    stack = [(start, path)]
+
+    while stack:
+        c_pathcube, c_path = stack.pop()
+
+        if c_pathcube in visited:
+            continue
+        else:
+            visited.add(c_pathcube)
+        
+        if c_pathcube.is_objective:
+            # A path was found. Animate it
+            for p in c_path:
+                cube.move(p)
+                p.rect_color = (255, 165, 0)
+                time.sleep(0.1)
+            return True
+
+        for neighbour in paths.get_neighbors(c_pathcube):
+            if neighbour.is_blocked:
+                continue
+
+            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            next_path = c_path + [neighbour]
+            stack.append((neighbour, next_path))
+
+    return False
+
+
+def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
+    """Finds a path from the starting node to the end node.
+    
+    The start node is defined by the current cube's position and the
+    end node is defined by the pathcube which its is_objective attribute is true.
+    
+    The algorithm finds a path using the breadth-first search algorithm.
+    
+    Returns:
+        True if the a path was found, othewise False.
+    """
+
+    visited = set()
+
+    start = paths.find_path(cube)
+    path = [start]
+    # stack item: pathcube path
+    stack = [(start, path)]
+
+    while stack:
+        c_pathcube, c_path = stack.pop(0)
+
+        if c_pathcube in visited:
+            continue
+        else:
+            visited.add(c_pathcube)
+        
+        if c_pathcube.is_objective:
+            # A path was found. Animate it
+            for p in c_path:
+                cube.move(p)
+                p.rect_color = (255, 165, 0)
+                time.sleep(0.1)
+            return True
+
+        for neighbour in paths.get_neighbors(c_pathcube):
+            if neighbour.is_blocked:
+                continue
+
+            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            next_path = c_path + [neighbour]
+            stack.append((neighbour, next_path))
+
+    return False

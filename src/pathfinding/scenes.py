@@ -59,8 +59,8 @@ class ApplicationScene(scene.Scene):
             self.screen, "Algorithms", "right",
             ("A*", lambda: self.set_algorithm(algorithms.astar, "A*")),
             ("Dijkistra Algorithm", lambda: self.set_algorithm(algorithms.astar, "Dijkistra")),
-            ("Depth-First Search", lambda: self.set_algorithm(algorithms.astar, "Depth-First")),
-            ("Breadth-First Search", lambda: self.set_algorithm(algorithms.astar, "Breadth-First")),
+            ("Depth-First Search", lambda: self.set_algorithm(algorithms.dfs, "Depth-First")),
+            ("Breadth-First Search", lambda: self.set_algorithm(algorithms.bfs, "Breadth-First")),
             bar_surface_colour=(41, 67, 92), bar_outline_colour=(21, 42, 56))
 
         self.timer = interface.Chronometer(screen, (255, 255, 255))
