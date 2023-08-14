@@ -1,6 +1,7 @@
 """algorithms.py module"""
 
 import time
+import heapq
 from queue import PriorityQueue
 
 from . import cubes
@@ -208,5 +209,48 @@ def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
             neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
             next_path = c_path + [neighbour]
             stack.append((neighbour, next_path))
+
+    return False
+
+
+def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
+    initial_node = paths.find_path(cube)
+    distances = {node: float("inf") for node in paths}
+    distances[initial_node] = 0
+
+    came_from = {initial_node: None}
+    visited = set()
+
+    priority_queue = PriorityQueue()
+    priority_queue.put((initial_node, 0))
+
+    while priority_queue.not_empty:
+        current_node, current_distance = priority_queue.get()
+
+        if current_node.is_objective:
+            yay = reconstruct_path(came_from, current_node)
+            yay.pop(0)
+            for path in yay:
+                cube.move(path)
+                path.rect_color = (255, 165, 0)
+                time.sleep(0.1)
+            return True
+        elif current_node in visited:
+            continue
+
+        visited.add(current_node)
+
+        for neighbour in paths.get_neighbors(current_node):
+            if neighbour.is_blocked:
+                continue
+
+            tentative_distance = distances[current_node] + neighbour.weight
+            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+
+            if tentative_distance < distances[neighbour]:
+                distances[neighbour] = tentative_distance
+                priority_queue.put((neighbour, tentative_distance))
+
+                came_from[neighbour] = current_node
 
     return False

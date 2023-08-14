@@ -1,4 +1,5 @@
 """Cubes module."""
+import random
 
 from pygame import draw, mouse, rect, surface
 
@@ -86,9 +87,12 @@ class PathCube(Cube):
         self.rect_color = self.OPEN_COLOUR
         self.is_blocked = False
         self.is_objective = False
+        self.weight = random.randint(1, 10)
         self.f_cost = 0
 
         self.rect.x, self.rect.y = pos  # (x, y)
+        self.id = PathCube.ID
+
         PathCube.ID += 1
 
     def block(self):
@@ -123,7 +127,7 @@ class PathCube(Cube):
         draw.rect(self.screen, (0, 0, 0), self.rect, 2)
 
     def __repr__(self):
-        return f"Path({PathCube.ID}) at {self.get_pos()}"
+        return f"Path({self.id}) at {self.get_pos()}"
 
     def __lt__(self, other):
         """The comparison is based on the f cost."""

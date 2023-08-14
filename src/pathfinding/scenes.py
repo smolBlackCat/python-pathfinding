@@ -58,7 +58,7 @@ class ApplicationScene(scene.Scene):
         self.algorithms_button_bar = interface.ButtonBar(
             self.screen, "Algorithms", "right",
             ("A*", lambda: self.set_algorithm(algorithms.astar, "A*")),
-            ("Dijkistra Algorithm", lambda: self.set_algorithm(algorithms.astar, "Dijkistra")),
+            ("Dijkstra Algorithm", lambda: self.set_algorithm(algorithms.dijkstra, "Dijkstra")),
             ("Depth-First Search", lambda: self.set_algorithm(algorithms.dfs, "Depth-First")),
             ("Breadth-First Search", lambda: self.set_algorithm(algorithms.bfs, "Breadth-First")),
             bar_surface_colour=(41, 67, 92), bar_outline_colour=(21, 42, 56))
@@ -126,7 +126,7 @@ class ApplicationScene(scene.Scene):
 
         self.traversing = True
         self.timer.start()
-        fn(self.cube, self.paths)
+        print(fn(self.cube, self.paths))
         self.timer.stop()
         self.traversing = False
 
