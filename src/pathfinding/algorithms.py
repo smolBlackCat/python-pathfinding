@@ -224,13 +224,13 @@ def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
     priority_queue = PriorityQueue()
     priority_queue.put((initial_node, 0))
 
-    while priority_queue.not_empty:
+    while not priority_queue.empty():
         current_node, current_distance = priority_queue.get()
 
         if current_node.is_objective:
-            yay = reconstruct_path(came_from, current_node)
-            yay.pop(0)
-            for path in yay:
+            found_path = reconstruct_path(came_from, current_node)
+            found_path.pop(0)
+            for path in found_path:
                 cube.move(path)
                 path.rect_color = (255, 165, 0)
                 time.sleep(0.1)
@@ -249,8 +249,10 @@ def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
 
             if tentative_distance < distances[neighbour]:
                 distances[neighbour] = tentative_distance
-                priority_queue.put((neighbour, tentative_distance))
-
                 came_from[neighbour] = current_node
+                if neighbour not in visited:
+                    priority_queue.put((neighbour, tentative_distance))
+
+        print(priority_queue.qsize())
 
     return False
