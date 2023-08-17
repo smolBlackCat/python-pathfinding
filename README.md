@@ -23,7 +23,7 @@ possible installing the application package without the risk of conflicting pack
 application.
 
 ```sh
-sudo apt install pipx # If you're in debian based systems. Use your system's package manager!!!
+sudo apt install pipx # Use your system's package manager. This is just an example
 ```
 
 After that, you can safely execute the application without worrying about
