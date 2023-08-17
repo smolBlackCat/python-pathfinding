@@ -1,3 +1,10 @@
 {
-    "main_title": "App made by smolBlackCat"
+    "main_title": "App made by smolBlackCat",
+    "algorithms_title": "Algorithms",
+    "selected_algorithm": "Selected Algorithm",
+    "no_selected_algorithm": "No algorithm was selected",
+    "dfs": "Depth-First Search",
+    "bfs": "Breadth-First Search",
+    "astar": "A* algorithm",
+    "dijkstra": "Dijkstra's Algorithm"
 }

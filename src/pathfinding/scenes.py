@@ -56,18 +56,18 @@ class ApplicationScene(scene.Scene):
         self.paths = cubes.PathCubeList(screen)
 
         self.algorithms_button_bar = interface.ButtonBar(
-            self.screen, "Algorithms", "right",
-            ("A*", lambda: self.set_algorithm(algorithms.astar, "A*")),
-            ("Dijkstra Algorithm", lambda: self.set_algorithm(algorithms.dijkstra, "Dijkstra")),
-            ("Depth-First Search", lambda: self.set_algorithm(algorithms.dfs, "Depth-First")),
-            ("Breadth-First Search", lambda: self.set_algorithm(algorithms.bfs, "Breadth-First")),
+            self.screen, languages.message_map["algorithms_title"], "right",
+            (languages.message_map["astar"], lambda: self.set_algorithm(algorithms.astar, languages.message_map["astar"])),
+            (languages.message_map["dijkstra"], lambda: self.set_algorithm(algorithms.dijkstra, languages.message_map["dijkstra"])),
+            (languages.message_map["dfs"], lambda: self.set_algorithm(algorithms.dfs, languages.message_map["dfs"])),
+            (languages.message_map["bfs"], lambda: self.set_algorithm(algorithms.bfs, languages.message_map["bfs"])),
             bar_surface_colour=(41, 67, 92), bar_outline_colour=(21, 42, 56))
 
         self.timer = interface.Chronometer(screen, (255, 255, 255))
         self.timer.rect.y += 10
         self.timer.rect.centerx = self.screen_rect.centerx
 
-        self.label = interface.Label(screen, "No algorithm was selected",
+        self.label = interface.Label(screen, languages.message_map["no_selected_algorithm"],
                                      bold=True, size=24, colour=(255, 255, 255))
         self.label.rect.topright = self.screen_rect.topright
         self.label.rect.x -= 10
@@ -131,7 +131,7 @@ class ApplicationScene(scene.Scene):
         self.traversing = False
 
     def set_algorithm(self, new, name_new):
-        self.label.update_text(f"Selected Algorithm: {name_new}")
+        self.label.update_text(f"{languages.message_map['selected_algorithm']}: {name_new}")
         self.label.rect = self.label.image.get_rect()
         self.label.rect.topright = self.screen_rect.topright
         self.label.rect.x -= 10

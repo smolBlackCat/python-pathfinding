@@ -1,3 +1,10 @@
 {
-    "main_title": "App feito por De Moura"
+    "main_title": "Aplicativo feito por smolBlackCat",
+    "algorithms_title": "Algoritmos",
+    "selected_algorithm": "Algoritmo Selecionado",
+    "no_selected_algorithm": "Nenhum algoritmo foi selecionado",
+    "dfs": "Busca em Profundidade",
+    "bfs": "Busca em Largura",
+    "astar": "Algoritmo A*",
+    "dijkstra": "Algoritmo de Dijkstra"
 }
