@@ -43,6 +43,10 @@ moura-pathfinding
 Running that command should lead you to the application where you can see
 pathfinding working.
 
+### Windows
+
+There's an installer for Windows. Just run it and install it
+
 ## Licence
 
 [MIT Licence](./LICENSE)
