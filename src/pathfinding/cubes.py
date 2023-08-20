@@ -248,3 +248,15 @@ class PathCubeList(list):
             if cube.get_pos() == path.get_pos():
                 return path
         return None
+
+    def clean(self):
+        """Clean the steps made by the CharacterCube instance on this
+        terrain.
+        
+        It resets all the unblocked PathCube objects to the default
+        unlocked colour.
+        """
+
+        to_clean = filter(lambda path_cube: not (path_cube.is_blocked or path_cube.is_objective), self)
+        for path_cube in to_clean:
+            path_cube.unblock()

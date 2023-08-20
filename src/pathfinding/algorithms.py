@@ -48,7 +48,7 @@ def reconstruct_path(came_from, current):
     return total_path
 
 
-def astar(cube, paths):  # Thread
+def astar(app_scene, cube, paths):  # Thread
     """A* Algorithm. Produces the most optimal path.
 
     Args:
@@ -82,10 +82,18 @@ def astar(cube, paths):  # Thread
 
     score = 1  # g == n + 1
     while not open_queue.empty():
+
+        if not app_scene.traversing:
+            return False
+
         current = open_queue.get()
         if current.is_objective:
             # Starts running on the paths.
             for path in reconstruct_path(came_from, current):
+
+                if not app_scene.traversing:
+                    return False
+                
                 path.rect_color = (255, 165, 0)
                 cube.move(path)
                 time.sleep(0.1)
@@ -121,7 +129,7 @@ def astar(cube, paths):  # Thread
     return False
 
 
-def dfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
+def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     """Finds a path from the starting node to the end node.
     
     The start node is defined by the current cube's position and the
@@ -141,6 +149,9 @@ def dfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     stack = [(start, path)]
 
     while stack:
+        if not app_scene.traversing:
+            return False
+
         c_pathcube, c_path = stack.pop()
 
         if c_pathcube in visited:
@@ -151,6 +162,8 @@ def dfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
         if c_pathcube.is_objective:
             # A path was found. Animate it
             for p in c_path:
+                if not app_scene.traversing:
+                    return False
                 cube.move(p)
                 p.rect_color = (255, 165, 0)
                 time.sleep(0.1)
@@ -167,7 +180,7 @@ def dfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     return False
 
 
-def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
+def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     """Finds a path from the starting node to the end node.
     
     The start node is defined by the current cube's position and the
@@ -187,6 +200,10 @@ def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     stack = [(start, path)]
 
     while stack:
+
+        if not app_scene.traversing:
+            return False
+
         c_pathcube, c_path = stack.pop(0)
 
         if c_pathcube in visited:
@@ -197,6 +214,8 @@ def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
         if c_pathcube.is_objective:
             # A path was found. Animate it
             for p in c_path:
+                if not app_scene.traversing:
+                    return False
                 cube.move(p)
                 p.rect_color = (255, 165, 0)
                 time.sleep(0.1)
@@ -213,7 +232,7 @@ def bfs(cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     return False
 
 
-def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
+def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
     initial_node = paths.find_path(cube)
     distances = {node: float("inf") for node in paths}
     distances[initial_node] = 0
@@ -225,12 +244,16 @@ def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
     priority_queue.put((initial_node, 0))
 
     while not priority_queue.empty():
+        if not app_scene.traversing:
+            return False
         current_node, current_distance = priority_queue.get()
 
         if current_node.is_objective:
             found_path = reconstruct_path(came_from, current_node)
             found_path.pop(0)
             for path in found_path:
+                if not app_scene.traversing:
+                    return False
                 cube.move(path)
                 path.rect_color = (255, 165, 0)
                 time.sleep(0.1)
@@ -252,7 +275,5 @@ def dijkstra(cube: cubes.CharacterCube, paths: cubes.PathCubeList):
                 came_from[neighbour] = current_node
                 if neighbour not in visited:
                     priority_queue.put((neighbour, tentative_distance))
-
-        print(priority_queue.qsize())
 
     return False

@@ -74,6 +74,7 @@ class ApplicationScene(scene.Scene):
         self.label.rect.y += 10
 
         self.algorithm = None
+        self.running = False
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 30))
@@ -94,7 +95,13 @@ class ApplicationScene(scene.Scene):
             sys.exit()
         elif event.type == constants.KEYDOWN:
             if event.key == constants.K_r:
+                # Reset terrain and cube position
                 self.paths.unblock_all()
+                self.cube.reset_pos()
+                self.timer.reset()
+            elif event.key == constants.K_t:
+                # Clean the traversed terrain
+                self.paths.clean()
                 self.cube.reset_pos()
                 self.timer.reset()
             elif event.key == constants.K_s and self.algorithm is not None:
@@ -103,6 +110,10 @@ class ApplicationScene(scene.Scene):
                         target=lambda: self.solve_maze(self.algorithm),
                         daemon=True,
                     ).start()
+            elif event.key == constants.K_c and self.traversing:
+                self.traversing = False
+                self.paths.clean()
+                self.timer.reset()
 
             # Computing the directions clicks.
             elif event.key == constants.K_UP and self.cube.rect.y > self.paths.HEIGHT_SPACING_FACTOR//2:
@@ -126,7 +137,7 @@ class ApplicationScene(scene.Scene):
 
         self.traversing = True
         self.timer.start()
-        print(fn(self.cube, self.paths))
+        print(fn(self, self.cube, self.paths))
         self.timer.stop()
         self.traversing = False
 
