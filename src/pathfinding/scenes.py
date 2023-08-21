@@ -19,9 +19,13 @@ class SplashScreenScene(scene.Scene):
 
         self.bg_colour = (255, 255, 255)
         self.app_icon = transform.scale(image.load(icon_path), (64, 64))
-        self.app_label = interface.Label(self.screen,
-                                         languages.message_map["main_title"],
-                                         colour=(0, 0, 0), size=36, chars_per_line=20)
+        self.app_label = interface.Label(
+            self.screen,
+            languages.message_map["main_title"],
+            colour=(0, 0, 0),
+            size=36,
+            chars_per_line=20,
+        )
         self.app_icon_rect = self.app_icon.get_rect()
         self.app_icon_rect.center = self.screen_rect.center
         self.app_label.rect.center = self.screen_rect.center
@@ -33,7 +37,6 @@ class SplashScreenScene(scene.Scene):
         self.screen.fill(self.bg_colour)
         self.screen.blit(self.app_icon, self.app_icon_rect)
         self.app_label.draw()
-        
 
     def update_on_event(self, event) -> None:
         if event.type == self.END_INTRO:
@@ -56,19 +59,48 @@ class ApplicationScene(scene.Scene):
         self.paths = cubes.PathCubeList(screen)
 
         self.algorithms_button_bar = interface.ButtonBar(
-            self.screen, languages.message_map["algorithms_title"], "right",
-            (languages.message_map["astar"], lambda: self.set_algorithm(algorithms.astar, languages.message_map["astar"])),
-            (languages.message_map["dijkstra"], lambda: self.set_algorithm(algorithms.dijkstra, languages.message_map["dijkstra"])),
-            (languages.message_map["dfs"], lambda: self.set_algorithm(algorithms.dfs, languages.message_map["dfs"])),
-            (languages.message_map["bfs"], lambda: self.set_algorithm(algorithms.bfs, languages.message_map["bfs"])),
-            bar_surface_colour=(41, 67, 92), bar_outline_colour=(21, 42, 56))
+            self.screen,
+            languages.message_map["algorithms_title"],
+            "right",
+            (
+                languages.message_map["astar"],
+                lambda: self.set_algorithm(
+                    algorithms.astar, languages.message_map["astar"]
+                ),
+            ),
+            (
+                languages.message_map["dijkstra"],
+                lambda: self.set_algorithm(
+                    algorithms.dijkstra, languages.message_map["dijkstra"]
+                ),
+            ),
+            (
+                languages.message_map["dfs"],
+                lambda: self.set_algorithm(
+                    algorithms.dfs, languages.message_map["dfs"]
+                ),
+            ),
+            (
+                languages.message_map["bfs"],
+                lambda: self.set_algorithm(
+                    algorithms.bfs, languages.message_map["bfs"]
+                ),
+            ),
+            bar_surface_colour=(41, 67, 92),
+            bar_outline_colour=(21, 42, 56),
+        )
 
         self.timer = interface.Chronometer(screen, (255, 255, 255))
         self.timer.rect.y += 10
         self.timer.rect.centerx = self.screen_rect.centerx
 
-        self.label = interface.Label(screen, languages.message_map["no_selected_algorithm"],
-                                     bold=True, size=24, colour=(255, 255, 255))
+        self.label = interface.Label(
+            screen,
+            languages.message_map["no_selected_algorithm"],
+            bold=True,
+            size=24,
+            colour=(255, 255, 255),
+        )
         self.label.rect.topright = self.screen_rect.topright
         self.label.rect.x -= 10
         self.label.rect.y += 10
@@ -118,21 +150,33 @@ class ApplicationScene(scene.Scene):
                 self.timer.reset()
 
             # Computing the directions clicks.
-            elif event.key == constants.K_UP and self.cube.rect.y > self.paths.HEIGHT_SPACING_FACTOR//2:
+            elif (
+                event.key == constants.K_UP
+                and self.cube.rect.y > self.paths.HEIGHT_SPACING_FACTOR // 2
+            ):
                 self.cube.rect.y -= cubes.SIDE_LENGTH
-            elif event.key == constants.K_DOWN and self.cube.rect.y < self.paths.grid_height:
+            elif (
+                event.key == constants.K_DOWN
+                and self.cube.rect.y < self.paths.grid_height
+            ):
                 self.cube.rect.y += cubes.SIDE_LENGTH
-            elif event.key == constants.K_RIGHT and self.cube.rect.x <= self.paths.grid_width:
+            elif (
+                event.key == constants.K_RIGHT
+                and self.cube.rect.x <= self.paths.grid_width
+            ):
                 self.cube.rect.x += cubes.SIDE_LENGTH
-            elif event.key == constants.K_LEFT and self.cube.rect.x > self.paths.WIDTH_SPACING_FACTOR//2:
+            elif (
+                event.key == constants.K_LEFT
+                and self.cube.rect.x > self.paths.WIDTH_SPACING_FACTOR // 2
+            ):
                 self.cube.rect.x -= cubes.SIDE_LENGTH
         self.algorithms_button_bar.update_on_event(event)
 
     def solve_maze(self, fn):
         """Solve the user generated maze given the solver function.
-        
+
         Args:
-        
+
             fn: Function to use to solve the maze.
                 Signature: fn(CharacterCube, PathCubeList)
         """
@@ -144,7 +188,9 @@ class ApplicationScene(scene.Scene):
         self.traversing = False
 
     def set_algorithm(self, new, name_new):
-        self.label.update_text(f"{languages.message_map['selected_algorithm']}: {name_new}")
+        self.label.update_text(
+            f"{languages.message_map['selected_algorithm']}: {name_new}"
+        )
         self.label.rect = self.label.image.get_rect()
         self.label.rect.topright = self.screen_rect.topright
         self.label.rect.x -= 10

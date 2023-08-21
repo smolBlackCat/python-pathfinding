@@ -44,7 +44,7 @@ class CharacterCube(Cube):
 
     def move(self, path_obj):
         """Moves the Character to a specified path.
-        
+
         Args:
             path_obj: PathCube object from which this CharacterCube object will
                       go to.
@@ -79,7 +79,7 @@ class PathCube(Cube):
         Args:
             screen: pygame.surface.Surface object from where the cube will be
                     drawn on.
-            
+
             pos: tuple containing the x and y coordinates.
         """
 
@@ -153,7 +153,7 @@ class PathCubeList(list):
 
         Args:
             path_: PathCube object from which the neighbors will be gotten from.
-        
+
         Returns:
             A list containing all the path_ neighbors.
         """
@@ -161,12 +161,14 @@ class PathCubeList(list):
         neighbors = []
         pathx, pathy = path_.get_pos()
         for path in self:
-            is_neighbor = any([path.rect.collidepoint(pathx, pathy-SIDE_LENGTH),
-                               path.rect.collidepoint(
-                                   pathx, pathy+SIDE_LENGTH),
-                               path.rect.collidepoint(
-                                   pathx-SIDE_LENGTH, pathy),
-                               path.rect.collidepoint(pathx+SIDE_LENGTH, pathy)])
+            is_neighbor = any(
+                [
+                    path.rect.collidepoint(pathx, pathy - SIDE_LENGTH),
+                    path.rect.collidepoint(pathx, pathy + SIDE_LENGTH),
+                    path.rect.collidepoint(pathx - SIDE_LENGTH, pathy),
+                    path.rect.collidepoint(pathx + SIDE_LENGTH, pathy),
+                ]
+            )
             if is_neighbor:
                 neighbors.append(path)
         return neighbors
@@ -190,8 +192,7 @@ class PathCubeList(list):
 
         for x_pos in range(n_rows):
             for y_pos in range(n_columns):
-                self.append(
-                    PathCube(self.screen, (cur_row, cur_column)))
+                self.append(PathCube(self.screen, (cur_row, cur_column)))
                 cur_column += SIDE_LENGTH
             cur_column = self.HEIGHT_SPACING_FACTOR // 2
             cur_row += SIDE_LENGTH
@@ -206,17 +207,18 @@ class PathCubeList(list):
         """Update their colours if they're pressed."""
 
         for path in self:
-            if mouse.get_pressed()[0] and \
-                    path.rect.collidepoint(mouse.get_pos()):
+            if mouse.get_pressed()[0] and path.rect.collidepoint(mouse.get_pos()):
                 path.block()
-            elif mouse.get_pressed()[2] and \
-                    path.rect.collidepoint(mouse.get_pos()) and \
-                    self.get_objective() is None:
+            elif (
+                mouse.get_pressed()[2]
+                and path.rect.collidepoint(mouse.get_pos())
+                and self.get_objective() is None
+            ):
                 path.set_objective()
 
     def get_objective(self):
         """Get a CubePath object which its is_objective attribute is set to
-        True. 
+        True.
 
         Returns:
             CubePath object that's an objective.
@@ -238,7 +240,7 @@ class PathCubeList(list):
 
         Args:
             cube: Any cube object.
-        
+
         Returns:
             PathCube object that's being covered by the given cube. If that
             isn't the case, None is returned.
@@ -252,11 +254,14 @@ class PathCubeList(list):
     def clean(self):
         """Clean the steps made by the CharacterCube instance on this
         terrain.
-        
+
         It resets all the unblocked PathCube objects to the default
         unlocked colour.
         """
 
-        to_clean = filter(lambda path_cube: not (path_cube.is_blocked or path_cube.is_objective), self)
+        to_clean = filter(
+            lambda path_cube: not (path_cube.is_blocked or path_cube.is_objective),
+            self
+        )
         for path_cube in to_clean:
             path_cube.unblock()

@@ -50,7 +50,7 @@ def reconstruct_path(came_from, current):
 
 def walk(app_scene, cube, to_walk):
     """Make cube walk through all the given pathcubes.
-     
+
      Args:
         app_scene: scene holding the state 'traversing'
 
@@ -58,7 +58,7 @@ def walk(app_scene, cube, to_walk):
 
         tO_walk: list of PathCube objects to go to in an interval of
                  0.1 second
-    
+
     Returns:
         True whenever the cube finish traversing. False might be
         returned if the process was canceled by the user in the main
@@ -68,7 +68,7 @@ def walk(app_scene, cube, to_walk):
     for path in to_walk:
         if not app_scene.traversing:
             return False
-                
+
         path.rect_color = (255, 165, 0)
         cube.move(path)
         time.sleep(0.1)
@@ -109,7 +109,6 @@ def astar(app_scene, cube, paths):  # Thread
 
     score = 1  # g == n + 1
     while not open_queue.empty():
-
         if not app_scene.traversing:
             return False
 
@@ -149,12 +148,12 @@ def astar(app_scene, cube, paths):  # Thread
 
 def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     """Finds a path from the starting node to the end node.
-    
+
     The start node is defined by the current cube's position and the
     end node is defined by the pathcube which its is_objective attribute is true.
-    
+
     The algorithm finds a path using the depth-first search algorithm.
-    
+
     Returns:
         True if the a path was found, othewise False.
     """
@@ -176,7 +175,7 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             continue
         else:
             visited.add(c_pathcube)
-        
+
         if c_pathcube.is_objective:
             # A path was found. Animate it
             return walk(app_scene, cube, c_path)
@@ -185,7 +184,9 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             if neighbour.is_blocked:
                 continue
 
-            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            neighbour.rect_color = (
+                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            )
             next_path = c_path + [neighbour]
             stack.append((neighbour, next_path))
 
@@ -194,12 +195,12 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
 def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     """Finds a path from the starting node to the end node.
-    
+
     The start node is defined by the current cube's position and the
     end node is defined by the pathcube which its is_objective attribute is true.
-    
+
     The algorithm finds a path using the breadth-first search algorithm.
-    
+
     Returns:
         True if the a path was found, othewise False.
     """
@@ -212,7 +213,6 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
     stack = [(start, path)]
 
     while stack:
-
         if not app_scene.traversing:
             return False
 
@@ -222,7 +222,7 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             continue
         else:
             visited.add(c_pathcube)
-        
+
         if c_pathcube.is_objective:
             # A path was found. Animate it
             return walk(app_scene, cube, c_path)
@@ -231,7 +231,9 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             if neighbour.is_blocked:
                 continue
 
-            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            neighbour.rect_color = (
+                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            )
             next_path = c_path + [neighbour]
             stack.append((neighbour, next_path))
 
@@ -268,7 +270,9 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
                 continue
 
             tentative_distance = distances[current_node] + neighbour.weight
-            neighbour.rect_color = (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            neighbour.rect_color = (
+                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
+            )
 
             if tentative_distance < distances[neighbour]:
                 distances[neighbour] = tentative_distance
