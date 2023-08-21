@@ -48,6 +48,33 @@ def reconstruct_path(came_from, current):
     return total_path
 
 
+def walk(app_scene, cube, to_walk):
+    """Make cube walk through all the given pathcubes.
+     
+     Args:
+        app_scene: scene holding the state 'traversing'
+
+        cube: Character cube object instance
+
+        tO_walk: list of PathCube objects to go to in an interval of
+                 0.1 second
+    
+    Returns:
+        True whenever the cube finish traversing. False might be
+        returned if the process was canceled by the user in the main
+        thread.
+    """
+
+    for path in to_walk:
+        if not app_scene.traversing:
+            return False
+                
+        path.rect_color = (255, 165, 0)
+        cube.move(path)
+        time.sleep(0.1)
+    return True
+
+
 def astar(app_scene, cube, paths):  # Thread
     """A* Algorithm. Produces the most optimal path.
 
@@ -89,16 +116,7 @@ def astar(app_scene, cube, paths):  # Thread
         current = open_queue.get()
         if current.is_objective:
             # Starts running on the paths.
-            for path in reconstruct_path(came_from, current):
-
-                if not app_scene.traversing:
-                    return False
-                
-                path.rect_color = (255, 165, 0)
-                cube.move(path)
-                time.sleep(0.1)
-            print("Path Was found")
-            return True
+            return walk(app_scene, cube, reconstruct_path(came_from, current))
 
         # Removing the current one since we already worked with it, making the
         # algorithm not analyze repeated cubes.
@@ -161,13 +179,7 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
         
         if c_pathcube.is_objective:
             # A path was found. Animate it
-            for p in c_path:
-                if not app_scene.traversing:
-                    return False
-                cube.move(p)
-                p.rect_color = (255, 165, 0)
-                time.sleep(0.1)
-            return True
+            return walk(app_scene, cube, c_path)
 
         for neighbour in paths.get_neighbors(c_pathcube):
             if neighbour.is_blocked:
@@ -213,13 +225,7 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
         
         if c_pathcube.is_objective:
             # A path was found. Animate it
-            for p in c_path:
-                if not app_scene.traversing:
-                    return False
-                cube.move(p)
-                p.rect_color = (255, 165, 0)
-                time.sleep(0.1)
-            return True
+            return walk(app_scene, cube, c_path)
 
         for neighbour in paths.get_neighbors(c_pathcube):
             if neighbour.is_blocked:
@@ -251,13 +257,7 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
         if current_node.is_objective:
             found_path = reconstruct_path(came_from, current_node)
             found_path.pop(0)
-            for path in found_path:
-                if not app_scene.traversing:
-                    return False
-                cube.move(path)
-                path.rect_color = (255, 165, 0)
-                time.sleep(0.1)
-            return True
+            return walk(app_scene, cube, found_path)
         elif current_node in visited:
             continue
 
