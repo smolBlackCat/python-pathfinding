@@ -96,11 +96,13 @@ class ApplicationScene(scene.Scene):
         elif event.type == constants.KEYDOWN:
             if event.key == constants.K_r:
                 # Reset terrain and cube position
+                self.traversing = False
                 self.paths.unblock_all()
                 self.cube.reset_pos()
                 self.timer.reset()
             elif event.key == constants.K_t:
                 # Clean the traversed terrain
+                self.traversing = False
                 self.paths.clean()
                 self.cube.reset_pos()
                 self.timer.reset()
