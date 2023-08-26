@@ -55,6 +55,14 @@ class ApplicationScene(scene.Scene):
         super().__init__(screen)
 
         self.traversing = False
+        self.algorithm = None
+
+        # This is going to be shown to the user. It's updated whenever
+        # an algorithm begins searching
+        self.nodes_visited = 0
+        self.path_len = 0
+        self.path_cost = 0
+    
         self.cube = cubes.CharacterCube(screen)
         self.paths = cubes.PathCubeList(screen)
 
@@ -105,8 +113,14 @@ class ApplicationScene(scene.Scene):
         self.label.rect.x -= 10
         self.label.rect.y += 10
 
-        self.algorithm = None
-        self.running = False
+        self.info_label = interface.Label(
+            screen,
+            languages.message_map["info_label"] % (self.nodes_visited, self.path_len, self.path_cost),
+            size=24, 
+            colour=(255, 255, 255),
+            chars_per_line=100)
+        self.info_label.rect.bottom = self.screen_rect.bottom - 10
+        self.info_label.rect.centerx = self.screen_rect.centerx
 
     def draw(self) -> None:
         self.screen.fill((30, 30, 30))
@@ -115,12 +129,14 @@ class ApplicationScene(scene.Scene):
         self.algorithms_button_bar.draw()
         self.timer.draw()
         self.label.draw()
+        self.info_label.draw()
 
     def update(self) -> None:
         if not self.algorithms_button_bar.active:
             self.paths.update()
         self.algorithms_button_bar.update()
         self.timer.update()
+        self.info_label.update()
 
     def update_on_event(self, event) -> None:
         if event.type == constants.QUIT:
@@ -132,12 +148,14 @@ class ApplicationScene(scene.Scene):
                 self.paths.unblock_all()
                 self.cube.reset_pos()
                 self.timer.reset()
+                self.reset_alg_stats()
             elif event.key == constants.K_t:
                 # Clean the traversed terrain
                 self.traversing = False
                 self.paths.clean()
                 self.cube.reset_pos()
                 self.timer.reset()
+                self.reset_alg_stats()
             elif event.key == constants.K_s and self.algorithm is not None:
                 if active_count() == 1 and self.paths.get_objective() is not None:
                     Thread(
@@ -148,6 +166,7 @@ class ApplicationScene(scene.Scene):
                 self.traversing = False
                 self.paths.clean()
                 self.timer.reset()
+                self.reset_alg_stats()
 
             # Computing the directions clicks.
             elif (
@@ -157,12 +176,12 @@ class ApplicationScene(scene.Scene):
                 self.cube.rect.y -= cubes.SIDE_LENGTH
             elif (
                 event.key == constants.K_DOWN
-                and self.cube.rect.y < self.paths.grid_height
+                and self.cube.rect.y < self.paths.grid_height + 20 # Bad workaround. height isn't reliable
             ):
                 self.cube.rect.y += cubes.SIDE_LENGTH
             elif (
                 event.key == constants.K_RIGHT
-                and self.cube.rect.x <= self.paths.grid_width
+                and self.cube.rect.x <= self.paths.grid_width + 40 # Bad workaround. width isn't reliable
             ):
                 self.cube.rect.x += cubes.SIDE_LENGTH
             elif (
@@ -183,7 +202,8 @@ class ApplicationScene(scene.Scene):
 
         self.traversing = True
         self.timer.start()
-        print(fn(self, self.cube, self.paths))
+        found, read_nodes_len, path_len, path_cost = fn(self, self.cube, self.paths)
+        self.info_label.update_text(languages.message_map["info_label"] % (read_nodes_len, path_len, path_cost))
         self.timer.stop()
         self.traversing = False
 
@@ -196,3 +216,14 @@ class ApplicationScene(scene.Scene):
         self.label.rect.x -= 10
         self.label.rect.y += 10
         self.algorithm = new
+    
+    def reset_alg_stats(self):
+        """Reset information of algorithm after being ran."""
+
+        self.nodes_visited = 0
+        self.path_len = 0
+        self.path_cost = 0
+        self.info_label.update_text(languages.message_map["info_label"] %
+                                    (self.read_nodes_len, self.path_len,
+                                     self.path_cost))
+

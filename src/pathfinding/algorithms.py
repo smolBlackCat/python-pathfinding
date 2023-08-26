@@ -107,6 +107,8 @@ def astar(app_scene, cube, paths):  # Thread
     # So a set is much better .
     open_set = {start}
 
+    visited_len = 0 # amount of neighbours visited
+
     score = 1  # g == n + 1
     while not open_queue.empty():
         if not app_scene.traversing:
@@ -115,14 +117,14 @@ def astar(app_scene, cube, paths):  # Thread
         current = open_queue.get()
         if current.is_objective:
             # Starts running on the paths.
-            return walk(app_scene, cube, reconstruct_path(came_from, current))
+            path = reconstruct_path(came_from, current)
+            return walk(app_scene, cube, path), visited_len, len(path), sum(map(lambda p: p.weight, path))
 
         # Removing the current one since we already worked with it, making the
         # algorithm not analyze repeated cubes.
         open_set.remove(current)
         for neighbor in paths.get_neighbors(current):
             tentative_gscore = g_score[current] + score
-
             if tentative_gscore < g_score[neighbor] and not neighbor.is_blocked:
                 # This path is better. Record It !
                 came_from[neighbor] = current
@@ -135,6 +137,7 @@ def astar(app_scene, cube, paths):  # Thread
                 if neighbor not in open_set:
                     open_queue.put(neighbor)
                     open_set.add(neighbor)
+                    visited_len += 1
             else:
                 # This is not a good idea, let's see others...
                 if not (neighbor.is_blocked or neighbor.is_objective):
@@ -143,7 +146,7 @@ def astar(app_scene, cube, paths):  # Thread
 
     # print this if the path just dont exist. :(
     print("The path doesn't exist")
-    return False
+    return False, visited_len, 0, 0
 
 
 def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
@@ -167,7 +170,7 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
     while stack:
         if not app_scene.traversing:
-            return False
+            break
 
         c_pathcube, c_path = stack.pop()
 
@@ -178,7 +181,8 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
         if c_pathcube.is_objective:
             # A path was found. Animate it
-            return walk(app_scene, cube, c_path)
+            return (walk(app_scene, cube, c_path), len(visited), len(c_path),
+                    sum(map(lambda p: p.weight, c_path)))
 
         for neighbour in paths.get_neighbors(c_pathcube):
             if neighbour.is_blocked:
@@ -190,7 +194,7 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             next_path = c_path + [neighbour]
             stack.append((neighbour, next_path))
 
-    return False
+    return False, len(visited), 0, 0
 
 
 def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
@@ -214,7 +218,7 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
     while stack:
         if not app_scene.traversing:
-            return False
+            break
 
         c_pathcube, c_path = stack.pop(0)
 
@@ -225,7 +229,8 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
         if c_pathcube.is_objective:
             # A path was found. Animate it
-            return walk(app_scene, cube, c_path)
+            return (walk(app_scene, cube, c_path), len(visited), len(c_path),
+                    sum(map(lambda p: p.weight, c_path)))
 
         for neighbour in paths.get_neighbors(c_pathcube):
             if neighbour.is_blocked:
@@ -237,7 +242,7 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
             next_path = c_path + [neighbour]
             stack.append((neighbour, next_path))
 
-    return False
+    return False, len(visited), 0, 0
 
 
 def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
@@ -259,7 +264,7 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
         if current_node.is_objective:
             found_path = reconstruct_path(came_from, current_node)
             found_path.pop(0)
-            return walk(app_scene, cube, found_path)
+            return walk(app_scene, cube, found_path), len(visited), len(found_path), sum(map(lambda p: p.weight, found_path))
         elif current_node in visited:
             continue
 
@@ -280,4 +285,4 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
                 if neighbour not in visited:
                     priority_queue.put((neighbour, tentative_distance))
 
-    return False
+    return False, len(visited), 0, 0
