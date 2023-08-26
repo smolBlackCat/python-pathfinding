@@ -224,6 +224,6 @@ class ApplicationScene(scene.Scene):
         self.path_len = 0
         self.path_cost = 0
         self.info_label.update_text(languages.message_map["info_label"] %
-                                    (self.read_nodes_len, self.path_len,
+                                    (self.nodes_visited, self.path_len,
                                      self.path_cost))
 
