@@ -6,5 +6,6 @@
     "dfs": "Depth-First Search",
     "bfs": "Breadth-First Search",
     "astar": "A* algorithm",
-    "dijkstra": "Dijkstra's Algorithm"
+    "dijkstra": "Dijkstra's Algorithm",
+    "info_label": "Nodes visited: %03d    Cubes traversed: %03d    Cost: %03d"
 }

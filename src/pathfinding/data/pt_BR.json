@@ -6,5 +6,6 @@
     "dfs": "Busca em Profundidade",
     "bfs": "Busca em Largura",
     "astar": "Algoritmo A*",
-    "dijkstra": "Algoritmo de Dijkstra"
+    "dijkstra": "Algoritmo de Dijkstra",
+    "info_label": "Nós visitados: %03d    Cubos transpassados: %03d    Custo: %03d"
 }
