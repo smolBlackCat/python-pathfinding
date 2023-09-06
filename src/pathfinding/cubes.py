@@ -87,7 +87,7 @@ class PathCube(Cube):
         self.rect_color = self.OPEN_COLOUR
         self.is_blocked = False
         self.is_objective = False
-        self.weight = random.randint(1, 10)
+        self.weight = random.randint(1, 3)
         self.f_cost = 0
 
         self.rect.x, self.rect.y = pos  # (x, y)

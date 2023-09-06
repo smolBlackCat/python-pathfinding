@@ -1,10 +1,11 @@
 """algorithms.py module"""
 
 import time
-import heapq
 from queue import PriorityQueue
 
 from . import cubes
+
+TIME_INTERVAL = 0.01
 
 
 def heuristic(cube, objective):
@@ -101,52 +102,42 @@ def astar(app_scene, cube, paths):  # Thread
     start = paths.find_path(cube)
     g_score[start] = 0
     start.f_cost = f_score[start] = heuristic(start, paths.get_objective())
-    open_queue.put(start)
+    open_queue.put((0, start))
 
-    # The priority queue has no way to analyze if it has an element inside.
-    # So a set is much better .
-    open_set = {start}
+    visited = set()
 
-    visited_len = 0 # amount of neighbours visited
-
-    score = 1  # g == n + 1
     while not open_queue.empty():
         if not app_scene.traversing:
             return False
 
-        current = open_queue.get()
-        if current.is_objective:
+        _, current_node = open_queue.get()
+        if current_node in visited:
+            continue
+        if current_node.is_objective:
             # Starts running on the paths.
-            path = reconstruct_path(came_from, current)
-            return walk(app_scene, cube, path), visited_len, len(path), sum(map(lambda p: p.weight, path))
+            path = reconstruct_path(came_from, current_node)
+            return walk(app_scene, cube, path), len(visited), len(path), sum(map(lambda p: p.weight, path))
 
-        # Removing the current one since we already worked with it, making the
-        # algorithm not analyze repeated cubes.
-        open_set.remove(current)
-        for neighbor in paths.get_neighbors(current):
-            tentative_gscore = g_score[current] + score
+        for neighbor in paths.get_neighbors(current_node):
+            tentative_gscore = g_score[current_node] + current_node.weight
+
             if tentative_gscore < g_score[neighbor] and not neighbor.is_blocked:
                 # This path is better. Record It !
-                came_from[neighbor] = current
+                came_from[neighbor] = current_node
                 g_score[neighbor] = tentative_gscore
                 f_score[neighbor] = g_score[neighbor] + heuristic(
-                    neighbor, paths.get_objective()
-                )
-                neighbor.f_cost = f_score[neighbor]
+                    neighbor, paths.get_objective())
 
-                if neighbor not in open_set:
-                    open_queue.put(neighbor)
-                    open_set.add(neighbor)
-                    visited_len += 1
-            else:
-                # This is not a good idea, let's see others...
-                if not (neighbor.is_blocked or neighbor.is_objective):
-                    neighbor.rect_color = (255, 0, 255)
-        score += 1
+                open_queue.put((f_score[neighbor], neighbor))
+                neighbor.rect_color = (180, 0, 0)
+
+        current_node.rect_color = (255, 0, 255)
+        visited.add(current_node)
+        time.sleep(TIME_INTERVAL)
 
     # print this if the path just dont exist. :(
     print("The path doesn't exist")
-    return False, visited_len, 0, 0
+    return False, len(visited), 0, 0
 
 
 def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
@@ -176,23 +167,20 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
 
         if c_pathcube in visited:
             continue
-        else:
-            visited.add(c_pathcube)
-
         if c_pathcube.is_objective:
             # A path was found. Animate it
             return (walk(app_scene, cube, c_path), len(visited), len(c_path),
                     sum(map(lambda p: p.weight, c_path)))
 
         for neighbour in paths.get_neighbors(c_pathcube):
-            if neighbour.is_blocked:
-                continue
-
-            neighbour.rect_color = (
-                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
-            )
-            next_path = c_path + [neighbour]
-            stack.append((neighbour, next_path))
+            if not neighbour.is_blocked:    
+                next_path = c_path + [neighbour]
+                stack.append((neighbour, next_path))
+                neighbour.rect_color = (180, 0, 0)
+        
+        c_pathcube.rect_color = (255, 0, 255)
+        visited.add(c_pathcube)
+        time.sleep(TIME_INTERVAL)
 
     return False, len(visited), 0, 0
 
@@ -233,14 +221,14 @@ def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
                     sum(map(lambda p: p.weight, c_path)))
 
         for neighbour in paths.get_neighbors(c_pathcube):
-            if neighbour.is_blocked:
-                continue
+            if not neighbour.is_blocked:
+                next_path = c_path + [neighbour]
+                stack.append((neighbour, next_path))
+            neighbour.rect_color = (180, 0, 0)
+        
+        c_pathcube.rect_color = (255, 0, 255)
 
-            neighbour.rect_color = (
-                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
-            )
-            next_path = c_path + [neighbour]
-            stack.append((neighbour, next_path))
+        time.sleep(TIME_INTERVAL)
 
     return False, len(visited), 0, 0
 
@@ -254,12 +242,12 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
     visited = set()
 
     priority_queue = PriorityQueue()
-    priority_queue.put((initial_node, 0))
+    priority_queue.put((0, initial_node))
 
     while not priority_queue.empty():
         if not app_scene.traversing:
             return False
-        current_node, current_distance = priority_queue.get()
+        current_distance, current_node = priority_queue.get()
 
         if current_node.is_objective:
             found_path = reconstruct_path(came_from, current_node)
@@ -268,21 +256,21 @@ def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
         elif current_node in visited:
             continue
 
-        visited.add(current_node)
-
         for neighbour in paths.get_neighbors(current_node):
             if neighbour.is_blocked:
                 continue
 
             tentative_distance = distances[current_node] + neighbour.weight
-            neighbour.rect_color = (
-                (255, 0, 255) if not neighbour.is_objective else neighbour.rect_color
-            )
 
             if tentative_distance < distances[neighbour]:
                 distances[neighbour] = tentative_distance
                 came_from[neighbour] = current_node
                 if neighbour not in visited:
-                    priority_queue.put((neighbour, tentative_distance))
+                    priority_queue.put((tentative_distance, neighbour))
+                    neighbour.rect_color = (180, 0, 0)
+        
+        visited.add(current_node)
+        current_node.rect_color = (255, 0, 255)
+        time.sleep(TIME_INTERVAL)
 
     return False, len(visited), 0, 0

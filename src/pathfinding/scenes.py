@@ -1,5 +1,6 @@
 """scenes.py module"""
 
+import random
 import sys
 from threading import Thread, active_count
 
@@ -167,6 +168,16 @@ class ApplicationScene(scene.Scene):
                 self.paths.clean()
                 self.timer.reset()
                 self.reset_alg_stats()
+            elif event.key == constants.K_g and not self.traversing:
+                self.paths.unblock_all()
+                percentage_to_block = 30/100
+                amount_to_block = int(len(self.paths) * percentage_to_block)
+                to_block = random.choices(
+                    list(
+                        filter(lambda p: not (p.get_pos() == self.cube.get_pos()),
+                               self.paths)), k=amount_to_block)
+                for p_to_block in to_block:
+                    p_to_block.block()
 
             # Computing the directions clicks.
             elif (
