@@ -1,7 +1,7 @@
 """algorithms.py module"""
 
 import time
-from queue import PriorityQueue
+from queue import PriorityQueue, Queue, LifoQueue
 
 from . import cubes
 
@@ -140,6 +140,42 @@ def astar(app_scene, cube, paths):  # Thread
     return False, len(visited), 0, 0
 
 
+def _search(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList, container_class):
+    """General function for searching."""
+    start_node = paths.find_path(cube)
+    came_from = {}
+
+    queue = container_class()
+    visited = set()
+    queue.put(start_node)
+
+    start_node.rect_colour = (255, 0, 255)
+
+    while not queue.empty():
+        current_node = queue.get()
+
+        if not app_scene.traversing:
+            break
+
+        if current_node.is_objective:
+            path = reconstruct_path(came_from, current_node)
+            return (walk(app_scene, cube, path), len(visited), len(path),
+                    sum(map(lambda p: p.weight, path)))
+        elif current_node in visited:
+            continue
+
+        for neighbour in paths.get_neighbors(current_node):
+            if not (neighbour.is_blocked or neighbour in visited):
+                queue.put(neighbour)
+                came_from[neighbour] = current_node
+                neighbour.rect_color = (180, 0, 0)
+
+        visited.add(current_node)
+        current_node.rect_color = (255, 0, 255)
+        time.sleep(TIME_INTERVAL)
+    return False, len(visited), 0, 0
+
+
 def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
     """Finds a path from the starting node to the end node.
 
@@ -152,85 +188,13 @@ def dfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool
         True if the a path was found, othewise False.
     """
 
-    visited = set()
-
-    start = paths.find_path(cube)
-    path = [start]
-    # stack item: pathcube path
-    stack = [(start, path)]
-
-    while stack:
-        if not app_scene.traversing:
-            break
-
-        c_pathcube, c_path = stack.pop()
-
-        if c_pathcube in visited:
-            continue
-        if c_pathcube.is_objective:
-            # A path was found. Animate it
-            return (walk(app_scene, cube, c_path), len(visited), len(c_path),
-                    sum(map(lambda p: p.weight, c_path)))
-
-        for neighbour in paths.get_neighbors(c_pathcube):
-            if not neighbour.is_blocked:    
-                next_path = c_path + [neighbour]
-                stack.append((neighbour, next_path))
-                neighbour.rect_color = (180, 0, 0)
-        
-        c_pathcube.rect_color = (255, 0, 255)
-        visited.add(c_pathcube)
-        time.sleep(TIME_INTERVAL)
-
-    return False, len(visited), 0, 0
+    return _search(app_scene, cube, paths, LifoQueue)
 
 
-def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList) -> bool:
-    """Finds a path from the starting node to the end node.
+def bfs(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
+    """Breadth-first search algorithm."""
 
-    The start node is defined by the current cube's position and the
-    end node is defined by the pathcube which its is_objective attribute is true.
-
-    The algorithm finds a path using the breadth-first search algorithm.
-
-    Returns:
-        True if the a path was found, othewise False.
-    """
-
-    visited = set()
-
-    start = paths.find_path(cube)
-    path = [start]
-    # stack item: pathcube path
-    stack = [(start, path)]
-
-    while stack:
-        if not app_scene.traversing:
-            break
-
-        c_pathcube, c_path = stack.pop(0)
-
-        if c_pathcube in visited:
-            continue
-        else:
-            visited.add(c_pathcube)
-
-        if c_pathcube.is_objective:
-            # A path was found. Animate it
-            return (walk(app_scene, cube, c_path), len(visited), len(c_path),
-                    sum(map(lambda p: p.weight, c_path)))
-
-        for neighbour in paths.get_neighbors(c_pathcube):
-            if not neighbour.is_blocked:
-                next_path = c_path + [neighbour]
-                stack.append((neighbour, next_path))
-            neighbour.rect_color = (180, 0, 0)
-        
-        c_pathcube.rect_color = (255, 0, 255)
-
-        time.sleep(TIME_INTERVAL)
-
-    return False, len(visited), 0, 0
+    return _search(app_scene, cube, paths, Queue)
 
 
 def dijkstra(app_scene, cube: cubes.CharacterCube, paths: cubes.PathCubeList):
